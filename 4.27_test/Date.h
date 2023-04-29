@@ -44,13 +44,13 @@ public:
 	// ==运算符重载
 	bool operator==(const Date& d);
 	// >=运算符重载
-	bool operator >= (const Date& d);
+	bool operator>= (const Date& d);
 	// <运算符重载
-	bool operator < (const Date& d);
+	bool operator< (const Date& d);
 	// <=运算符重载
-	bool operator <= (const Date& d);
+	bool operator<= (const Date& d);
 	// !=运算符重载
-	bool operator != (const Date& d);
+	bool operator!= (const Date& d);
 	// 日期-日期 返回天数
 	int operator-(const Date& d);
 
