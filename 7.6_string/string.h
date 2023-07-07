@@ -8,17 +8,6 @@ namespace shr
 {
 	class string
 	{
-		friend ostream& operator<<(ostream& cout, const string& s)
-		{
-			cout << s.c_str();
-			return cout;
-		}
-
-		friend istream& operator>>(istream& cin, string& s)
-		{
-			
-		}
-
 	private:
 		size_t _size;
 		size_t _capacity;
@@ -27,11 +16,15 @@ namespace shr
 	public:
 		typedef char* iterator;
 		typedef const char* const_iterator;
+		typedef char* reverse_iterator;
+		typedef const char* const_reverse_iterator;
+
 		static const size_t npos;
 
 	public:
+		////构造&析构
 		string(const char* str = "")
-			:_size(strlen(str)), 
+			:_size(strlen(str)),
 			_capacity(_size),
 			_str(new char[_size + 1]) //+1是为了给'\0'预留空间
 		{
@@ -41,7 +34,7 @@ namespace shr
 		string(const string& s)
 		{
 			_str = new char[s._capacity + 1];
-			strcpy(_str, s._str);
+			memcpy(_str, s._str, s._size + 1); //_size + 1，为'\0'预留空间
 			_size = s._size;
 			_capacity = s._capacity;
 		}
@@ -53,6 +46,7 @@ namespace shr
 			_size = _capacity = 0;
 		}
 
+		////access
 		const char* c_str() const
 		{
 			return _str;
@@ -75,6 +69,7 @@ namespace shr
 			return _size;
 		}
 
+		////迭代器
 		iterator begin()
 		{
 			return _str;
@@ -95,13 +90,37 @@ namespace shr
 			return _str + _size;
 		}
 
+		reverse_iterator begin()
+		{
+			return _str + _size;
+		}
+
+		reverse_iterator end()
+		{
+			return _str;
+		}
+
+		const_reverse_iterator begin() const
+		{
+			return _str + _size;
+		}
+
+		const_reverse_iterator begin() const
+		{
+			return _str;
+		}
+
+		//增删查改
 		void reserve(size_t n)
 		{
-			char* tmp = new char[n + 1]; //为'\0'多开一个字节空间
-			strcpy(tmp, _str);
-			delete[] _str;
-			_str = tmp;
-			_capacity = n;
+			if (n > _capacity)
+			{
+				char* tmp = new char[n + 1]; //为'\0'多开一个字节空间
+				memcpy(tmp, _str, n + 1);
+				delete[] _str;
+				_str = tmp;
+				_capacity = n;
+			}
 		}
 
 		void push_back(char ch)
@@ -120,6 +139,7 @@ namespace shr
 				reserve(_size + len);
 			}
 			strcpy(_str + _size, str);
+			_size += len;
 		}
 
 		string& operator+=(char ch)
@@ -243,22 +263,17 @@ namespace shr
 		void resize(size_t n, char ch = '\0')
 		{
 			if(n <= _size) {
-				_size = n;
 				_str[_size] = '\0';
 			}
 			else
 			{
 				reserve(n);
-				size_t begin = _size;
-				while (_size < n) {
-					push_back(ch);
+				for (int i = _size; i < n; ++i) {
+					_str[i] = ch;
 				}
+				_str[n] = '\0';
 			}
-		}
-
-		bool empty()
-		{
-			return _size == 0;
+			_size = n;
 		}
 
 		void swap(string& s)
@@ -270,17 +285,44 @@ namespace shr
 
 		void clear()
 		{
-			erase();
+			if (_size != 0) {
+				erase();
+			}
+		}
+
+		bool empty()
+		{
+			return _size == 0;
+		}
+
+		////比较
+		//传统写法
+		//string& operator=(const string& s)
+		//{
+		//	reserve(s._capacity);
+		//	memcpy(_str, s._str, s._size + 1);
+		//	_size = s._size;
+		//	return *this;
+		//}
+
+		string& operator=(string tmp)
+		{
+			swap(tmp);
+			return *this;
 		}
 
 		bool operator>(const string& s)
 		{
-			return strcmp(this->c_str(), s.c_str()) > 0 ? true : false;
+			//hello helloxxx  true
+			//helloxxx hello  false
+			//hello hello  false
+			int ret = memcmp(_str, s._str, _size < s._size ? _size : s._size);
+			return ret == 0 ? _size > s._size : ret > 0;
 		}
 
 		bool operator==(const string& s)
 		{
-			return strcmp(this->c_str(), s.c_str()) == 0 ? true : false;
+			return _size == s._size && memcmp(_str, s._str, _size) == 0;
 		}
 
 		bool operator!=(const string& s)
@@ -288,21 +330,63 @@ namespace shr
 			return !(*this == s);
 		}
 
-		bool operator<(const string& s)
-		{
-			return (!(*this > s) && !(*this == s));
-		}
-
 		bool operator>=(const string& s)
 		{
 			return (*this > s || *this == s);
 		}
 
+		bool operator<(const string& s)
+		{
+			return !(*this >= s);
+		}
+
 		bool operator<=(const string& s)
 		{
-			return (*this < s || *this == s);
+			return !(*this > s);
 		}
 	};
 
 	const size_t string::npos = -1;
+}
+
+////输入输出
+std::ostream& operator<<(std::ostream& cout, const shr::string& s)
+{
+	for (int i = 0; i < s.size(); ++i) {
+		cout << s[i];
+	}
+	return cout;
+}
+
+std::istream& operator>>(std::istream& cin, shr::string& s)
+{
+	s.clear(); //clear实现数据覆盖
+
+	//get可以读取单个字符
+	char ch = cin.get();
+	//清空缓冲区中的前置空格和换行
+	while (ch == ' ' || ch == '\n') {
+		ch = cin.get();
+	}
+
+	//现将输入的字符放入buff中，buff满后再放入对象中
+	//减少扩容次数
+	char buff[128];
+	int i = 0;
+	while (ch != ' ' && ch != '\n')
+	{
+		buff[i++] = ch;
+		buff[i] = '\0';
+		if (i == 127)
+		{
+			s += buff;
+			i = 0;
+		}
+		ch = cin.get();
+	}
+	if (i != 0) {
+		s += buff;
+		i = 0;
+	}
+	return cin;
 }
