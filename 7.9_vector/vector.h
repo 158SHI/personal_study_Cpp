@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <algorithm>
 
 namespace shr
 {
@@ -18,14 +19,42 @@ namespace shr
 			_end_of_storage(nullptr)
 		{ }
 
-		vector(const vector& v)
+		vector(const vector<T>& v)
+			:_start(nullptr),
+			_finish(nullptr),
+			_end_of_storage(nullptr)
 		{
-			//不能直接调用v.size() ？？？
-			int sz = v._finish - v._start;
-			iterator tmp = new T[sz];
-			memcpy(tmp, v._start, sizeof(T) * sz);
+			size_t capa = v.capacity();
+			iterator tmp = new T[capa];
+			//不能直接使用memcpy，否则会对自定义类型进行浅拷贝
+			for (int i = 0; i < v.size(); ++i) {
+				tmp[i] = v[i];
+			}
 			_start = tmp;
-			_finish = _end_of_storage = tmp + sz;
+			_finish = tmp + v.size();
+			_end_of_storage = tmp + capa;
+		}
+
+		vector(size_t n, const T& val = T())
+		{
+			resize(n, val);
+		}
+
+		//针对误调用迭代器构造函数的问题
+		vector(int n, const T& val = T())
+		{
+			resize(n, val);
+		}
+
+		template<typename InputIterator>
+		vector(InputIterator first, InputIterator end)
+		{
+			//[first, end)
+			while (first != end)
+			{
+				push_back(*first);
+				++first;
+			}
 		}
 
 		~vector()
@@ -77,7 +106,10 @@ namespace shr
 				iterator tmp = new T[n];
 				if (_start)
 				{
-					memcpy(tmp, _start, sizeof(T) * old_size);
+					//不能直接使用memcpy
+					for (int i = 0; i < old_size; ++i) {
+						tmp[i] = (*this)[i];
+					}
 					delete[] _start;
 				}
 				_start = tmp;
@@ -86,9 +118,27 @@ namespace shr
 			}
 		}
 
-		void resize()
+		void resize(size_t n, const T& val = T())
 		{
+			if (n <= size()) {
+				_finish = _start + n;
+			}
+			else
+			{
+				reserve(n);
+				while (_finish != _start + n)
+				{
+					*_finish = val;
+					++_finish;
+				}
+			}
+		}
 
+		void swap(vector<T>& v)
+		{
+			std::swap(_start, v._start);
+			std::swap(_finish, v._finish);
+			std::swap(_end_of_storage, v._end_of_storage);
 		}
 
 		void push_back(const T& val)
@@ -144,12 +194,18 @@ namespace shr
 			return pos;
 		}
 
-		size_t size()
+		vector<T>& operator=(vector<T> v)
+		{
+			swap(v);
+			return *this;
+		}
+
+		size_t size() const
 		{
 			return _finish - _start;
 		}
 
-		size_t capacity()
+		size_t capacity() const
 		{
 			return _end_of_storage - _start;
 		}

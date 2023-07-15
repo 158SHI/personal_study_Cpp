@@ -68,9 +68,99 @@ void test2()
 	cout << endl;
 }
 
+void test3()
+{
+	shr::vector<int> v;
+	v.push_back(1);
+	v.push_back(2);
+	v.push_back(3);
+	v.push_back(4);
+	v.push_back(5);
+
+	shr::vector<int> v2(v);
+	v2.push_back(1);
+	v2.push_back(2);
+	v2.push_back(3);
+	v2.push_back(4);
+
+	v.swap(v2);
+
+	for (auto e : v) {
+		cout << e << ' ';
+	}
+
+	cout << endl;
+
+	for (auto e : v2) {
+		cout << e << ' ';
+	}
+}
+
+void test4()
+{
+	shr::vector<int> v;
+	v.push_back(1);
+	v.push_back(2);
+	v.push_back(3);
+	v.push_back(4);
+	v.push_back(5);
+
+	v.resize(10, 20);
+	for (auto e : v) {
+		cout << e << ' ';
+	}
+	cout << endl;
+
+	v.resize(3);
+	for (auto e : v) {
+		cout << e << ' ';
+	}
+	cout << endl;
+}
+
+void test5()
+{
+	shr::vector<string> v;
+	v.push_back("111111");
+	v.push_back("222222");
+	v.push_back("333333");
+	v.push_back("444444");
+	v.push_back("555555");
+	v.push_back("666666");
+
+	shr::vector<string> v2(v);
+	for (auto& e : v) {
+		cout << e << ' ';
+	}
+	cout << endl;
+}
+
+void test6()
+{
+	//shr::vector<string> v;
+	//v.push_back("111111");
+	//v.push_back("222222");
+	//v.push_back("333333");
+	//v.push_back("444444");
+	//v.push_back("555555");
+	//v.push_back("666666");
+
+	shr::vector<int> v(10, 23);
+
+	shr::vector<int> v2(v.begin() + 1, v.begin() + 4);
+	for (auto& e : v) {
+		cout << e << ' ';
+	}
+	cout << endl;
+}
+
 int main()
 {
 	//test1();
-	test2();
+	//test2();
+	//test3();
+	//test4();
+	//test5();
+	test6();
 	return 0;
 }
