@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include "iterator.h"
 
 namespace shr
 {
@@ -87,6 +88,8 @@ namespace shr
 	public:
 		typedef __list_iterator<T, T&, T*> iterator;
 		typedef __list_iterator<T, const T&, const T*> const_iterator;
+		typedef shr::reverse_iterator<iterator, T&, T*> reverse_iterator;
+		typedef shr::reverse_iterator<const_iterator, const T&, const T*> const_reverse_iterator;
 
 	public:
 		iterator begin()
@@ -107,6 +110,26 @@ namespace shr
 		const_iterator end() const
 		{
 			return _head;
+		}
+
+		reverse_iterator rbegin()
+		{
+			return reverse_iterator(end());
+		}
+
+		reverse_iterator rend()
+		{
+			return reverse_iterator(begin());
+		}
+
+		const_reverse_iterator crbegin() const
+		{
+			return reverse_iterator(end());
+		}
+
+		const_reverse_iterator crend() const
+		{
+			return reverse_iterator(begin());
 		}
 
 		list()

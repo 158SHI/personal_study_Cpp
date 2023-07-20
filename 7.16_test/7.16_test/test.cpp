@@ -116,6 +116,23 @@ void test3()
 	cout << endl;
 }
 
+void test4()
+{
+	shr::list<int> l;
+	l.push_back(1);
+	l.push_back(2);
+	l.push_back(3);
+	l.push_back(4);
+	l.push_back(5);
+
+	shr::list<int>::reverse_iterator it = l.rbegin();
+	while (it != l.rend())
+	{
+		cout << *it << ' ';
+		++it;
+	}
+}
+
 int main()
 {
 	//list<int> l1;
@@ -147,6 +164,7 @@ int main()
 
 	//test1();
 	//test2();
-	test3();
+	//test3();
+	test4();
 	return 0;
 }
