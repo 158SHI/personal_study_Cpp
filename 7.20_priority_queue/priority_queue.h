@@ -9,7 +9,7 @@ namespace shr
 	class less
 	{
 	public:
-		bool operator()(int x, int y)
+		bool operator()(const T& x, const T& y)
 		{
 			return x < y;
 		}
@@ -19,7 +19,7 @@ namespace shr
 	class greater
 	{
 	public:
-		bool operator()(int x, int y)
+		bool operator()(const T& x, const T& y)
 		{
 			return x > y;
 		}
