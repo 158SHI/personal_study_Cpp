@@ -43,7 +43,7 @@ public:
 
 void BST_test1()
 {
-	shr::BinarySearchTree<int> tree;
+	shr::key_model_tree::BinarySearchTree<int> tree;
 	//tree.Insert(8);
 	//tree.Insert(6);
 	//tree.Insert(12);
@@ -60,7 +60,7 @@ void BST_test1()
 
 void BST_test2()
 {
-	shr::BinarySearchTree<int> tree;
+	shr::key_model_tree::BinarySearchTree<int> tree;
 	int arr[] = { 8, 3, 1, 10, 6, 4, 7, 14, 13 };
 	for (auto e : arr) {
 		tree.Insert(e);
