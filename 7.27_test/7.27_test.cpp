@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 
 #include <iostream>
+#include <string>
 #include "BinarySearchTree.h"
 
 using namespace std;
@@ -106,9 +107,52 @@ void BST_test2()
 	cout << endl;
 }
 
+void BST_test3()
+{
+	shr::key_model_tree::BinarySearchTree<int> tree;
+	int arr[] = { 8, 3, 1, 10, 6, 4, 7, 14, 13 };
+	for (auto e : arr) {
+		tree.Insert(e);
+	}
+
+	shr::key_model_tree::BinarySearchTree<int> tree_2(tree);
+	tree.Inorder();
+	cout << endl;
+	tree_2.Inorder();
+}
+
+void BST_test4()
+{
+	shr::key_value_model_tree::BinarySearchTree<std::string, std::string> tree;
+	tree.Insert("abandon", "vt. 放弃；丢弃，抛弃");
+	tree.Insert("ability", "n. 能力， 本领；才能，才干");
+	tree.Insert("digital", "a. 数字的");
+	tree.Insert("dilemma", "n. 窘境，困境");
+	tree.Insert("inspire", "n. 鼓舞人心的人(事)");
+	tree.Insert("insist", "v. 坚持，主张");
+
+	//string key;
+	//while (cin >> key)
+	//{
+	//	auto ret = tree.Find(key);
+	//	if (ret) {
+	//		cout << ret->_val << endl;
+	//	}
+	//}
+	
+	//tree.InOrder();
+
+	tree.Erase("inspire");
+	tree.Erase("abandon");
+
+	tree.InOrder();
+}
+
 int main()
 {
 	//BST_test1();
-	BST_test2();
+	//BST_test2();
+	//BST_test3();
+	BST_test4();
 	return 0;
 }
