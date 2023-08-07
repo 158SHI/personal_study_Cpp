@@ -148,11 +148,37 @@ void BST_test4()
 	tree.InOrder();
 }
 
+void BST_Node5()
+{
+	//int arr[] = { 8, 3, 1, 10, 6, 4, 7, 14, 13 };
+	shr::key_value_model_tree_R::BinarySearchTree<int, string> tree;
+	tree.Insert(8, "eight");
+	tree.Insert(3, "three");
+	tree.Insert(1, "one");
+	tree.Insert(10, "ten");
+	tree.Insert(6, "six");
+	tree.Insert(4, "four");
+	tree.Insert(7, "seven");
+	tree.Insert(14, "fourteen");
+	tree.Insert(13, "thirteen");
+
+	//tree.InOrder();
+	//if (auto ret = tree.Find(11)) {
+	//	cout << ret->_val << endl;
+	//}
+	//tree.Erase(7);
+	//tree.Erase(6);
+	tree.Erase(6);
+	tree.InOrder();
+}
+
 int main()
 {
 	//BST_test1();
+	//cout << endl;
 	//BST_test2();
 	//BST_test3();
-	BST_test4();
+	//BST_test4();
+	BST_Node5();
 	return 0;
 }

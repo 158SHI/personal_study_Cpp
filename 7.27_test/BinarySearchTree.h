@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <assert.h>
 
 using namespace std;
 
@@ -43,6 +44,12 @@ namespace shr
 			}
 
 			Self& operator=(Self BSTree)
+			{
+				std::swap(_root, BSTree._root);
+				return *this;
+			}
+
+			const Self& operator=(Self BSTree) const
 			{
 				std::swap(_root, BSTree._root);
 				return *this;
@@ -182,7 +189,7 @@ namespace shr
 				return false;
 			}
 
-			bool Find(const Key& val)
+			bool Find(const Key& val) const
 			{
 				BST_Node* cur = _root;
 				while (cur)
@@ -200,18 +207,18 @@ namespace shr
 				return false;
 			}
 
-			bool Empty()
+			bool Empty() const
 			{
 				return _root == nullptr;
 			}
 
-			void Inorder()
+			void Inorder() const
 			{
 				_InOrder(_root);
 			}
 
 		private:
-			void _InOrder(BST_Node* root)
+			void _InOrder(BST_Node* root) const
 			{
 				if (!root) {
 					return;
@@ -399,7 +406,7 @@ namespace shr
 				return false;
 			}
 
-			BST_Node* Find(const Key& key)
+			BST_Node* Find(const Key& key) const
 			{
 				BST_Node* cur = _root;
 				while (cur)
@@ -417,12 +424,12 @@ namespace shr
 				return nullptr;
 			}
 
-			bool Empty()
+			bool Empty() const
 			{
 				return _root == nullptr;
 			}
 
-			void InOrder()
+			void InOrder() const
 			{
 				_InOrder(_root);
 			}
@@ -440,7 +447,7 @@ namespace shr
 				root = nullptr;
 			}
 
-			void _InOrder(BST_Node* root)
+			void _InOrder(const BST_Node* root) const
 			{
 				if (root == nullptr) {
 					return;
@@ -491,30 +498,103 @@ namespace shr
 
 			bool Insert(const Key& key, const Value& val)
 			{
-				
+				return _insert(key, val, _root);
 			}
 
 			bool Erase(const Key& key)
 			{
-				
+				return _erase(key, _root);
 			}
 
-			BST_Node* Find(const Key& key)
+			BST_Node* Find(const Key& key) const
 			{
-
+				return _find(key, _root);
 			}
 
-			bool Empty()
+			bool Empty() const
 			{
 				return _root == nullptr;
 			}
 
-			void InOrder()
+			void InOrder() const
 			{
 				_InOrder(_root);
 			}
 
 		private:
+			bool _erase(const Key& key, BST_Node*& root)
+			{
+				if (root == nullptr) {
+					return false;
+				}
+
+				if (key < root->_key) {
+					return _erase(key, root->_left);
+				}
+				else if (key > root->_key) {
+					return _erase(key, root->_right);
+				}
+				else
+				{
+					BST_Node* delNode = root;
+					if (root->_left == nullptr) {
+						root = root->_right;
+						delete delNode;
+					}
+					else if (root->_right == nullptr) {
+						root = root->_left;
+						delete delNode;
+					}
+					else
+					{
+						BST_Node* leftMax = root->_left;
+						while(leftMax->_right) {
+							leftMax = leftMax->_right;
+						}
+						std::swap(leftMax->_key, root->_key);
+						std::swap(leftMax->_val, root->_val);
+
+						return _erase(key, root->_left);
+					}
+					return true;
+				}
+			}
+
+			bool _insert(const Key& key, const Value& val, BST_Node*& root)
+			{
+				if (root == nullptr)
+				{
+					root = new BST_Node(key, val);
+					return true;
+				}
+
+				if (key < root->_key) {
+					return _insert(key, val, root->_left);
+				}
+				else if (key > root->_key) {
+					return _insert(key, val, root->_right);
+				}
+				else if (key == root->_key) {
+					return false;
+				}
+			}
+
+			BST_Node* _find(const Key& key, BST_Node* root) const
+			{
+				if (root == nullptr || key == root->_key) {
+					return root;
+				}
+
+				BST_Node* ret_left = _find(key, root->_left);
+				if (ret_left) {
+					return ret_left;
+				}
+				BST_Node* ret_right = _find(key, root->_right);
+				if (ret_right) {
+					return ret_right;
+				}
+			}
+
 			void Destroy(BST_Node* root)
 			{
 				if (root == nullptr) {
@@ -526,8 +606,8 @@ namespace shr
 				delete root;
 				root = nullptr;
 			}
-
-			void _InOrder(BST_Node* root)
+			
+			void _InOrder(const BST_Node* root) const
 			{
 				if (root == nullptr) {
 					return;
