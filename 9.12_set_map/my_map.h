@@ -31,24 +31,25 @@ namespace shr
 			return _tree.end();
 		}
 
-		const_iterator cbegin()
+		const_iterator begin() const
 		{
-			return _tree.cbegin();
+			return _tree.begin();
 		}
 
-		const_iterator cend()
+		const_iterator end() const
 		{
-			return _tree.cend();
+			return _tree.end();
 		}
 
-		iterator insert(const std::pair<Key, Value>& kv)
+		std::pair<iterator, bool> insert(const std::pair<Key, Value>& kv)
 		{
 			return _tree.insert(kv);
 		}
 
 		Value& operator[](const Key& key)
 		{
-			return (_tree.insert(std::make_pair(key, Value())))->second;
+			std::pair<iterator, bool> ret = _tree.insert(std::make_pair(key, Value()));
+			return ret.first->second;
 		}
 
 	private:

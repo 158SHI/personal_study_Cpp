@@ -3,6 +3,7 @@
 #include <utility>
 #include <assert.h>
 #include <iostream>
+#include "reverse_iterator.h"
 
 namespace shr
 {
@@ -37,28 +38,33 @@ namespace shr
 	private:
 		typedef RB_tree_node<T> node;
 		typedef __RB_tree_iterator<T, Ref, Ptr> Self;
+		typedef __RB_tree_iterator<T, T&, T*> iterator;
 
 	public:
 		__RB_tree_iterator(node* pnode)
 			:_node(pnode)
 		{ }
 
-		Ref operator*()
+		__RB_tree_iterator(const iterator& it)
+			:_node(it._node)
+		{ }
+
+		Ref operator*() const
 		{
 			return _node->_data;
 		}
 
-		Ptr operator->()
+		Ptr operator->() const
 		{
 			return &(_node->_data);
 		}
 
-		bool operator==(const Self& it)
+		bool operator==(const Self& it) const
 		{
 			return _node == it._node;
 		}
 
-		bool operator!=(const Self& it)
+		bool operator!=(const Self& it) const
 		{
 			return _node != it._node;
 		}
@@ -96,20 +102,48 @@ namespace shr
 
 		Self operator++(int)
 		{
-
+			Self tmp = *this;
+			++(*this);
+			return tmp;
 		}
 
 		Self& operator--()
 		{
-
+			node* cur = _node;
+			node* parent = cur->_parent;
+			if (cur->_left)
+			{
+				node* subRight = cur->_left;
+				while (subRight->_right) {
+					subRight = subRight->_right;
+				}
+				_node = subRight;
+			}
+			else
+			{
+				while (parent && cur == parent->_left)
+				{
+					if (cur == parent->_right) {
+						break;
+					}
+					else
+					{
+						cur = cur->_parent;
+						parent = parent->_parent;
+					}
+				}
+				_node = parent;
+			}
+			return *this;
 		}
 
 		Self operator--(int)
 		{
-
+			Self tmp = *this;
+			--(*this);
+			return tmp;
 		}
 
-	private:
 		node* _node;
 	};
 
@@ -122,6 +156,8 @@ namespace shr
 	public:
 		typedef __RB_tree_iterator<T, T&, T*> iterator;
 		typedef __RB_tree_iterator<T, const T&, const T*> const_iterator;
+		//typedef shr::reverse_iterator<iterator, T&, T*> reverse_iterator;
+		//typedef shr::reverse_iterator<const_iterator, const T&, const T*> const_reverse_iterator;
 
 	public:
 		RB_tree()
@@ -137,7 +173,7 @@ namespace shr
 			return leftMost;
 		}
 
-		const_iterator cbegin()
+		const_iterator begin() const
 		{
 			node* leftMost = _root;
 			while (leftMost && leftMost->_left) {
@@ -151,12 +187,12 @@ namespace shr
 			return nullptr;
 		}
 
-		const_iterator cend()
+		const_iterator end() const
 		{
 			return nullptr;
 		}
 
-		iterator find(const Key& k)
+		iterator find(const Key& k) const
 		{
 			node* cur = _root;
 			KeyOfT kot;
@@ -175,14 +211,14 @@ namespace shr
 			return nullptr;
 		}
 
-		iterator insert(const T& data)
+		std::pair<iterator, bool> insert(const T& data)
 		{
 			node* newNode = new node(data);
 			if (_root == nullptr)
 			{
 				_root = newNode;
 				_root->_color = BLACK;
-				return _root;
+				return std::make_pair(_root, true);
 			}
 			KeyOfT kot;
 			node* cur = _root;
@@ -200,7 +236,7 @@ namespace shr
 					cur = cur->_right;
 				}
 				else {
-					return cur;
+					return std::make_pair(cur, false);
 				}
 			}
 			if (kot(data) < kot(parent->_data)) {
@@ -282,10 +318,10 @@ namespace shr
 				}
 			}
 			_root->_color = BLACK;
-			return newNode;
+			return std::make_pair(newNode, true);
 		}
 
-		bool is_RB_tree()
+		bool is_RB_tree() const
 		{
 			//_root是黑色的
 			//一个红色节点的父亲和两个孩子一定是黑色节点

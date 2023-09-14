@@ -7,28 +7,28 @@
 
 using namespace std;
 
-//void test1()
-//{
-//	shr::set<int> s;
-//	s.insert(5);
-//	s.insert(1);
-//	s.insert(4);
-//	s.insert(7);
-//	s.insert(9);
-//
-//	//shr::set<int>::iterator it = s.begin();
-//	//while (it != s.end())
-//	//{
-//	//	if (*it == 7) {
-//	//		int x = 10;
-//	//	}
-//	//	cout << *it << ' ';
-//	//	++it;
-//	//}
-//	for (auto e : s) {
-//		cout << e << ' ';
-//	}
-//}
+void test1()
+{
+	shr::set<int> s;
+	s.insert(5);
+	s.insert(1);
+	s.insert(4);
+	s.insert(7);
+	s.insert(9);
+
+	//shr::set<int>::iterator it = s.begin();
+	//while (it != s.end())
+	//{
+	//	if (*it == 7) {
+	//		int x = 10;
+	//	}
+	//	cout << *it << ' ';
+	//	++it;
+	//}
+	for (auto e : s) {
+		cout << e << ' ';
+	}
+}
 
 void test2()
 {
@@ -39,12 +39,13 @@ void test2()
 	m.insert(make_pair(7, 7));
 	m.insert(make_pair(9, 9));
 
-	shr::map<int, int>::const_iterator cit = m.cbegin();
-	while (cit != m.cend())
-	{
-		cout << cit->first << ' ';
-		++cit;
-	}
+
+	//shr::map<int, int>::const_iterator cit = m.begin();
+	//while (cit != m.end())
+	//{
+	//	cout << cit->first << ' ';
+	//	++cit;
+	//}
 }
 
 void test3()
@@ -60,10 +61,19 @@ void test3()
 	}
 }
 
+void test4()
+{
+	shr::map<int, int> m;
+	//由于end()实际为nullptr，所以对end进行--操作会崩溃
+	//auto it = m.end();
+	//--it;
+}
+
 int main()
 {
 	//test1();
-	test2();
+	//test2();
 	//test3();
+	test4();
 	return 0;
 }

@@ -21,32 +21,22 @@ namespace shr
 		typedef typename shr::RB_tree<Key, Key, SetKeyOfT>::const_iterator const_iterator;
 
 	public:
-		iterator begin()
+		iterator begin() const
 		{
-			return _tree.cbegin();
+			return _tree.begin();
 		}
 
-		const_iterator cbegin()
+		iterator end() const
 		{
-			return _tree.cbegin();
+			return _tree.end();
 		}
 
-		iterator end()
+		std::pair<iterator, bool> insert(const Key& k)
 		{
-			return _tree.cend();
+			std::pair<typename RB_tree<Key, Key, SetKeyOfT>::iterator, bool> p = _tree.insert(k);
+			//用普通迭代器构造const迭代器
+			return std::pair<iterator, bool>(p.first, p.second);
 		}
-
-		const_iterator cend()
-		{
-			return _tree.cend();
-		}
-
-		//无法解决返回值的问题
-		//tree的插入返回的是一个iterator,而此处返回的是一个const_iterator
-		//iterator insert(const Key& k)
-		//{
-		//	return _tree.insert(k);
-		//}
 
 	private:
 		shr::RB_tree<Key, Key, SetKeyOfT> _tree;
