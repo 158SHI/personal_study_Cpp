@@ -10,9 +10,7 @@ namespace shr
 {
 	//线性探测解决哈希冲突
 	namespace LinearProbing
-	{
-
-	}
+	{ }
 
 	//哈希桶结构
 	namespace HashBucket
@@ -42,6 +40,80 @@ namespace shr
 		};
 
 		template<class T>
+		struct HashNode;
+
+		template<class Key, class T, class KeyOfT, class HashFunc = HashFuncDefault<Key>>
+		class hash_table;
+
+		template<class Key, class T, class KeyOfT, class HashFunc>
+		struct __hash_table_iterator
+		{
+		private:
+			typedef HashNode<T> Node;
+			typedef __hash_table_iterator<Key, T, KeyOfT, HashFunc> Self;
+			typedef shr::HashBucket::hash_table<Key, T, KeyOfT, HashFunc> HashTable;
+
+		public:
+			Node* _node;
+			HashTable* _hash_table;
+
+			__hash_table_iterator(Node* node, HashTable* hash_table)
+				:_node(node), 
+				_hash_table(hash_table)
+			{ }
+
+			T& operator*()
+			{
+				return _node->_data;
+			}
+
+			T* operator->()
+			{
+				return &(_node->_data);
+			}
+
+			Self& operator++()
+			{
+				KeyOfT kot;
+				HashFunc hf;
+				if (_node->_next) {
+					_node = _node->_next;
+				}
+				else
+				{
+					int hashi = hf(kot(_node->_data)) % _hash_table->_table.size();
+					for (int i = hashi + 1; i < _hash_table->_table.size(); ++i)
+					{
+						if ((_hash_table->_table)[i])
+						{
+							_node = (_hash_table->_table)[i];
+							return *this;
+						}
+					}
+					_node = nullptr;
+				}
+				return *this;
+			}
+
+			Self operator++(int)
+			{
+				Self tmpIt = *this;
+				operator++();
+				return tmpIt;
+			}
+
+			bool operator==(const Self& it)
+			{
+				return _node == it._node;
+			}
+
+			bool operator!=(const Self& it)
+			{
+				return _node != it._node;
+			}
+		};
+
+		template<class T>
 		struct HashNode
 		{
 		private:
@@ -57,9 +129,15 @@ namespace shr
 			{ }
 		};
 
-		template<class Key, class T, class KeyOfT, class HashFunc = HashFuncDefault<Key>>
+		template<class Key, class T, class KeyOfT, class HashFunc>
 		class hash_table
 		{
+			template<class Key, class T, class KeyOfT, class HashFunc>
+			friend struct __hash_table_iterator;
+		
+		public:
+			typedef __hash_table_iterator<Key, T, KeyOfT, HashFunc> iterator;
+
 		private:
 			typedef HashNode<T> Node;
 
@@ -70,23 +148,41 @@ namespace shr
 				_table.resize(10);
 			}
 
-			T* find(const Key& key)
+			iterator begin()
+			{
+				//找到第一个不为空的哈希桶的头结点
+				for (int i = 0; i < _size; ++i)
+				{
+					if (_table[i]) {
+						return iterator(_table[i], this);
+					}
+				}
+				return iterator(nullptr, this);
+			}
+
+			iterator end()
+			{
+				return iterator(nullptr, this);
+			}
+
+			iterator find(const Key& key)
 			{
 				HashFunc hf;
 				KeyOfT kot;
-				int hashi = hf(key) % _table.size();
+				int hashi = hf(key) % _table.size(); //找到目标节点的索引
 				Node* cur = _table[hashi];
+				//遍历哈希桶
 				while (cur)
 				{
 					if (kot(cur->_data) == key) {
-						return &(cur->_data);
+						return iterator(cur, this);
 					}
 					cur = cur->_next;
 				}
-				return nullptr;
+				return iterator(nullptr, this);
 			}
 
-			bool insert(const T& data)
+			iterator insert(const T& data)
 			{
 				HashFunc hf;
 				KeyOfT kot;
@@ -122,39 +218,43 @@ namespace shr
 				_table[hashi] = newNode;
 				++_size; //更新有效数据个数
 				
-				return true;
+				return iterator(newNode, this);
 			}
 
-			bool erase(const Key& key)
+			iterator erase(const Key& key)
 			{
 				HashFunc hf;
 				KeyOfT kot;
-				int hashi = hf(kot(key)) % _table.size();
+				int hashi = hf(kot(key)) % _table.size(); //找到欲删除结点的索引
 				Node* cur = _table[hashi];
 				Node* preNode = nullptr;
+				//遍历哈希桶找到目标值
 				while (cur)
 				{
 					if (kot(cur->_data) == key)
 					{
 						Node* nextNode = cur->_next;
+						//删除哈希桶的头结点
 						if (preNode == nullptr) {
 							_table[hashi] = nextNode;
 						}
 						else {
 							preNode->_next = nextNode;
 						}
+						iterator retIt = ++iterator(cur, this);
 						delete cur;
 						--_size;
-						return true;
+						return retIt;
 					}
 					preNode = cur;
 					cur = cur->_next;
 				}
-				return false;
+				return iterator(nullptr, this);
 			}
 
 			~hash_table()
 			{
+				//逐个释放哈希桶
 				for (int i = 0; i < _table.size(); ++i)
 				{
 					Node* cur = _table[i];

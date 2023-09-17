@@ -16,17 +16,30 @@ namespace shr
 			}
 		};
 
-		bool insert(const Key& key)
+	public:
+		typedef typename shr::HashBucket::hash_table<Key, Key, KeyOfTSet>::iterator iterator;
+
+		iterator begin()
+		{
+			return _hash_table.begin();
+		}
+
+		iterator end()
+		{
+			return _hash_table.end();
+		}
+
+		iterator insert(const Key& key)
 		{
 			return _hash_table.insert(key);
 		}
 
-		bool erase(const Key& key)
+		iterator erase(const Key& key)
 		{
-
+			return _hash_table.erase(key);
 		}
 
-		Key* find(const Key& key)
+		iterator find(const Key& key)
 		{
 			return _hash_table.find(key);
 		}
