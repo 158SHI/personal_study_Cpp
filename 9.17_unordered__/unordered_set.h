@@ -17,19 +17,20 @@ namespace shr
 		};
 
 	public:
-		typedef typename shr::HashBucket::hash_table<Key, Key, KeyOfTSet>::iterator iterator;
+		typedef typename shr::HashBucket::hash_table<Key, Key, KeyOfTSet>::const_iterator iterator;
+		typedef typename shr::HashBucket::hash_table<Key, Key, KeyOfTSet>::const_iterator const_iterator;
 
-		iterator begin()
+		iterator begin() const
 		{
 			return _hash_table.begin();
 		}
 
-		iterator end()
+		iterator end() const
 		{
 			return _hash_table.end();
 		}
 
-		iterator insert(const Key& key)
+		pair<iterator, bool> insert(const Key& key)
 		{
 			return _hash_table.insert(key);
 		}
@@ -39,9 +40,10 @@ namespace shr
 			return _hash_table.erase(key);
 		}
 
-		iterator find(const Key& key)
+		iterator find(const Key& key) const
 		{
-			return _hash_table.find(key);
+			typename HashBucket::hash_table<Key, Key, KeyOfTSet>::iterator ret = _hash_table.find(key);
+			return iterator(ret);
 		}
 
 	private:

@@ -45,29 +45,38 @@ namespace shr
 		template<class Key, class T, class KeyOfT, class HashFunc = HashFuncDefault<Key>>
 		class hash_table;
 
-		template<class Key, class T, class KeyOfT, class HashFunc>
+		template<class Key, class T, class Ref, class Ptr, class KeyOfT, class HashFunc>
 		struct __hash_table_iterator
 		{
 		private:
 			typedef HashNode<T> Node;
-			typedef __hash_table_iterator<Key, T, KeyOfT, HashFunc> Self;
+			typedef __hash_table_iterator<Key, T, T&, T*, KeyOfT, HashFunc> iterator;
+			typedef __hash_table_iterator<Key, T, Ref, Ptr, KeyOfT, HashFunc> Self;
 			typedef shr::HashBucket::hash_table<Key, T, KeyOfT, HashFunc> HashTable;
 
 		public:
 			Node* _node;
-			HashTable* _hash_table;
+			const HashTable* _hash_table;
 
-			__hash_table_iterator(Node* node, HashTable* hash_table)
+			__hash_table_iterator(Node* node, const HashTable* hash_table)
 				:_node(node), 
 				_hash_table(hash_table)
 			{ }
 
-			T& operator*()
+			//对于iterator，这个函数是拷贝构造
+			//对于const_iterator，这个函数是构造
+			//使用iterator构造const_iterator
+			__hash_table_iterator(const iterator& it)
+				:_node(it._node),
+				_hash_table(it._hash_table)
+			{ }
+
+			Ref operator*()
 			{
 				return _node->_data;
 			}
 
-			T* operator->()
+			Ptr operator->()
 			{
 				return &(_node->_data);
 			}
@@ -81,6 +90,7 @@ namespace shr
 				}
 				else
 				{
+					//寻找下一个不为空的哈希桶
 					int hashi = hf(kot(_node->_data)) % _hash_table->_table.size();
 					for (int i = hashi + 1; i < _hash_table->_table.size(); ++i)
 					{
@@ -132,11 +142,12 @@ namespace shr
 		template<class Key, class T, class KeyOfT, class HashFunc>
 		class hash_table
 		{
-			template<class Key, class T, class KeyOfT, class HashFunc>
+			template<class Key, class T, class Ref, class Ptr, class KeyOfT, class HashFunc>
 			friend struct __hash_table_iterator;
 		
 		public:
-			typedef __hash_table_iterator<Key, T, KeyOfT, HashFunc> iterator;
+			typedef __hash_table_iterator<Key, T, T&, T*, KeyOfT, HashFunc> iterator;
+			typedef __hash_table_iterator<Key, T, const T&, const T*, KeyOfT, HashFunc> const_iterator;
 
 		private:
 			typedef HashNode<T> Node;
@@ -165,7 +176,24 @@ namespace shr
 				return iterator(nullptr, this);
 			}
 
-			iterator find(const Key& key)
+			const_iterator begin() const
+			{
+				//找到第一个不为空的哈希桶的头结点
+				for (int i = 0; i < _size; ++i)
+				{
+					if (_table[i]) {
+						return iterator(_table[i], this);
+					}
+				}
+				return const_iterator(nullptr, this);
+			}
+
+			const_iterator end() const
+			{
+				return const_iterator(nullptr, this);
+			}
+
+			iterator find(const Key& key) const
 			{
 				HashFunc hf;
 				KeyOfT kot;
@@ -182,10 +210,15 @@ namespace shr
 				return iterator(nullptr, this);
 			}
 
-			iterator insert(const T& data)
+			pair<iterator, bool> insert(const T& data)
 			{
 				HashFunc hf;
 				KeyOfT kot;
+
+				iterator retFind = find(kot(data));
+				if (retFind != end()) {
+					return make_pair(retFind, false);
+				}
 
 				//当负载因子为 1 时进行扩容以保证查找效率
 				if (_size == _table.size())
@@ -218,7 +251,7 @@ namespace shr
 				_table[hashi] = newNode;
 				++_size; //更新有效数据个数
 				
-				return iterator(newNode, this);
+				return make_pair(iterator(newNode, this), true);
 			}
 
 			iterator erase(const Key& key)

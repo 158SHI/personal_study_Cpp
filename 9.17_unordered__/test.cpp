@@ -101,11 +101,41 @@ void test4()
 	}
 }
 
+void test5()
+{
+	shr::unordered_set<int> s;
+	shr::unordered_map<int, int> m;
+	int arr[] = { 1, 7, 3, 9, 10 ,13, 29, 11, 23, 67, 20, 79 };
+	//for (auto e : arr) {
+	//	s.insert(e);
+	//}
+	//auto it = s.begin();
+	//while (it != s.end())
+	//{
+	//	cout << *it << ' ';
+	//	++it;
+	//}
+
+	for (auto e : arr)
+	{
+		//m.insert(make_pair(e, e));
+		m[e] = e;
+	}
+	auto it = m.begin();
+	
+	while (it != m.end())
+	{
+		cout << it->second << ' ';
+		++it;
+	}
+}
+
 int main()
 {
 	//test1();
 	//test2();
 	//test3();
-	test4();
+	//test4();
+	test5();
 	return 0;
 }
